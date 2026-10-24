@@ -170,3 +170,40 @@ Conecte o Agente de IA do N8N a um modelo como Gemini ou GPT para:
 **Bons estudos e mãos à obra** 🚀
 
 Se tiver dúvidas, lembre-se: a melhor forma de aprender é experimentando. Erre, corrija e celebre cada pequena vitória no caminho.
+
+---
+
+## Resultado da Implementação do MVP
+
+O workflow foi desenvolvido no n8n e integrado ao script Python executado no Google Colab por meio de um Webhook.
+
+O fluxo realiza as seguintes etapas:
+
+1. Extrai os dados de 10 clientes fictícios.
+2. Envia os dados ao Webhook do n8n.
+3. Consulta a base de opções de investimento.
+4. Associa cada cliente ao investimento correspondente ao seu perfil.
+5. Gera uma mensagem personalizada para cada cliente.
+
+### Evidência de Execução
+
+A execução de teste processou 10 clientes, gerando os campos `investimento_sugerido` e `mensagem` para cada registro.
+
+![Evidência de execução do MVP](evidencia-mvp-n8n.png)
+
+### Arquivos Entregues
+
+- `n8n/workflow.json` — workflow exportado do n8n.
+- `evidencia-mvp-n8n.png` — captura da execução do MVP.
+- Script Python de extração e envio dos clientes ao Webhook.
+
+### Status do Projeto
+
+- [x] Workflow n8n exportado para JSON.
+- [x] Integração do script Python com o Webhook.
+- [x] Cruzamento dos perfis com as opções de investimento.
+- [x] Geração de mensagens estáticas personalizadas.
+- [x] Evidência de execução adicionada ao repositório.
+
+**Próxima etapa:** integrar um modelo de IA generativa para produzir mensagens dinamicamente, conforme a etapa avançada do desafio.
+
