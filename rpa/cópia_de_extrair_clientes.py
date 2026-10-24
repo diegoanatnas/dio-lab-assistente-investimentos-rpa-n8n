@@ -103,6 +103,15 @@ print("Clientes encontrados:")
 for cliente in clientes:
     print(cliente)
 
-# TODO (N8N): enviar a lista "clientes" para um Webhook do n8n via POST.
 N8N_WEBHOOK = "https://rekindle-wistful-unrefined.ngrok-free.dev/webhook-test/clientes"
-requests.post(N8N_WEBHOOK, json={"clientes": clientes})
+
+try:
+    resposta = requests.post(
+        N8N_WEBHOOK,
+        json={"clientes": clientes},
+        timeout=30
+    )
+    resposta.raise_for_status()
+    print(f"Envio concluído! Status HTTP: {resposta.status_code}")
+except requests.RequestException as erro:
+    print(f"Erro ao enviar os clientes ao n8n: {erro}")
