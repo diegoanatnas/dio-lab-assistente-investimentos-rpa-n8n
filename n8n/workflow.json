@@ -1,0 +1,162 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clientes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -1200,
+        -96
+      ],
+      "id": "f677ed98-9468-4eb9-ad31-4782b72c1640",
+      "name": "Webhook",
+      "webhookId": "322f152c-57e5-4582-a44d-5b7ac712aef0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const clientes = $input.first().json.body.clientes;\n\nreturn clientes.map(cliente => ({\n  json: cliente\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        -96
+      ],
+      "id": "52f713b1-fbe3-49e6-a1ad-c53777302788",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://digitalinnovationone.github.io/dio-lab-assistente-investimentos-rpa-n8n/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -848,
+        -96
+      ],
+      "id": "c17cd6ea-e3ef-407c-85a7-34f204a481cd",
+      "name": "HTTP Request",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/digitalinnovationone/dio-lab-assistente-investimentos-rpa-n8n/main/docs/data.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -624,
+        -96
+      ],
+      "id": "4387016e-c9dd-4ed8-b739-7da0d07f715d",
+      "name": "HTTP Request1",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -400,
+        -96
+      ],
+      "id": "a5f9587b-73f8-4526-bbb2-343efa423c96",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst clientes = $('Code in JavaScript').all().map(item => item.json);\n\nconst respostaCSV = $('HTTP Request1').first().json;\nconst csv = respostaCSV.data ?? respostaCSV.body;\n\nif (typeof csv !== 'string') {\n  throw new Error(\n    'O HTTP Request1 não retornou o CSV como texto. Verifique a saída desse nó.'\n  );\n}\n\nconst linhas = csv.trim().split(/\\r?\\n/);\nconst cabecalhos = linhas.shift().split(',').map(c => c.trim());\n\nconst investimentos = linhas.map(linha => {\n  const valores = linha.split(',').map(v => v.trim());\n  return Object.fromEntries(\n    cabecalhos.map((cabecalho, i) => [cabecalho, valores[i] ?? ''])\n  );\n});\n\nreturn clientes.map(cliente => {\n  const perfil = String(cliente.perfil ?? '').trim().toLowerCase();\n\n  const investimento = investimentos.find(item =>\n    String(item.perfil ?? '').trim().toLowerCase() === perfil\n  );\n\n  let mensagem;\n\n  if (perfil === 'conservador') {\n    mensagem = `Olá, ${cliente.nome}! Para seu perfil conservador, avalie opções com foco em segurança e previsibilidade.`;\n  } else if (perfil === 'moderado') {\n    mensagem = `Olá, ${cliente.nome}! Para seu perfil moderado, avalie uma estratégia equilibrada entre segurança e crescimento.`;\n  } else if (perfil === 'arrojado') {\n    mensagem = `Olá, ${cliente.nome}! Para seu perfil arrojado, avalie alternativas diversificadas, considerando os riscos envolvidos.`;\n  } else {\n    mensagem = `Olá, ${cliente.nome}! Vamos analisar seu perfil para personalizar sua mensagem.`;\n  }\n\n  return {\n    json: {\n      ...cliente,\n      investimento_sugerido: investimento ?? null,\n      mensagem\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        48
+      ],
+      "id": "e13c005f-ff04-4849-ba3d-efc3f2a38d98",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f4123c39-2e07-4ff5-9bfc-a5777d434600",
+  "meta": {
+    "instanceId": "84a2aab767864e2dca532dd6a18ce7179eefb088e6ef881fd88c72922ae8e688"
+  },
+  "nodeGroups": [],
+  "id": "zNgIKYmZ8REX0NzW",
+  "tags": []
+}
